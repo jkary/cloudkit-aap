@@ -1,4 +1,14 @@
 ---
+# Global timeout configuration for AAP controller operations
+# Increase timeout for large repositories
+aap_configuration_async_timeout: 3600  # 1 hour for project sync operations
+controller_configuration_projects_async_retries: 60  # More retries for large repos
+controller_configuration_projects_async_delay: 10   # 10 second delay between retries
+
+# Enable detailed logging for debugging
+controller_configuration_projects_secure_logging: false
+aap_configuration_secure_logging: false
+
 # Create a project from the specified git repo
 controller_projects:  # noqa: var-naming[no-role-prefix]
   - name: "{{ aap_prefix }}"
@@ -12,6 +22,7 @@ controller_projects:  # noqa: var-naming[no-role-prefix]
     scm_credential: ""
     update_project: true
     wait: true
+    timeout: 0  # Use async timeout instead of module timeout
 
 # Create cluster-fulfillment templates and a config-as-code template
 controller_templates:  # noqa: var-naming[no-role-prefix]

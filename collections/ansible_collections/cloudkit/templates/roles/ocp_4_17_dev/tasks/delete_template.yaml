@@ -1,0 +1,46 @@
+---
+- name: Delete NodePools for VM-based worker nodes
+  kubernetes.core.k8s:
+    state: absent
+    api_version: hypershift.openshift.io/v1beta1
+    kind: NodePool
+    name: "{{ cluster_order.metadata.name }}-{{ item.resourceClass }}"
+    namespace: "{{ cluster_working_namespace }}"
+  loop: "{{ node_requests }}"
+  loop_control:
+    label: "{{ item.resourceClass }}-{{ item.numberOfNodes }}"
+  ignore_errors: true
+
+- name: Delete HostedCluster for VM-based development cluster
+  kubernetes.core.k8s:
+    state: absent
+    api_version: hypershift.openshift.io/v1beta1
+    kind: HostedCluster
+    name: "{{ cluster_order.metadata.name }}"
+    namespace: "{{ cluster_working_namespace }}"
+  ignore_errors: true
+
+- name: Delete pull secret for cluster
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Secret
+    name: "{{ cluster_order.metadata.name }}-pull-secret"
+    namespace: "{{ cluster_working_namespace }}"
+  ignore_errors: true
+
+- name: Delete SSH key secret for cluster
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Secret
+    name: "{{ cluster_order.metadata.name }}-ssh-key"
+    namespace: "{{ cluster_working_namespace }}"
+  ignore_errors: true
+
+- name: Display cluster deletion status
+  ansible.builtin.debug:
+    msg: 
+    - "Development cluster '{{ cluster_order.metadata.name }}' deletion initiated"
+    - "Platform: KubeVirt (VM-based)"
+    - "All associated NodePools, HostedCluster, and secrets marked for removal"

@@ -1,0 +1,27 @@
+---
+# Default values for the development cluster template
+
+# VM resource specifications (can be overridden by template parameters)
+default_vm_cpu_cores: 2
+default_vm_memory_gb: 4
+default_vm_disk_size_gb: 50
+
+# OpenShift version for development clusters
+openshift_release_image: "quay.io/openshift-release-dev/ocp-release:4.17.9-x86_64"
+
+# Development cluster optimizations
+development_optimizations:
+  monitoring_retention: "6h"
+  enable_user_workload_monitoring: false
+  network_mtu: 1400
+
+# KubeVirt platform defaults
+kubevirt_defaults:
+  storage_class: "hostpath-csi"
+  base_domain_passthrough: true
+  
+# Networking defaults for development
+networking_defaults:
+  cluster_network_cidr: "10.132.0.0/14"
+  service_network_cidr: "172.31.0.0/16"
+  machine_network_cidr: "192.168.122.0/24"

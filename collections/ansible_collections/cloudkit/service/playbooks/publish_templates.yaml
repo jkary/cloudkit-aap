@@ -2,13 +2,13 @@
   hosts: localhost
   gather_facts: false
   tasks:
-  - name: Get innabox client token
+  - name: Get controller client token
     ansible.builtin.command:
       cmd: >
-        oc create token controller
+        oc create token {{ fulfillment_service_account | default('controller-manager') }}
         --duration=10m
-        -n innabox
-    register: innabox_client_token
+        -n {{ ansible_eda_namespace }}
+    register: controller_client_token
     changed_when: false
 
   - name: Discover templates
@@ -19,4 +19,4 @@
     ansible.builtin.include_role:
       name: cloudkit.service.publish_templates
     vars:
-      cloudkit_fulfillment_service_token: "{{ innabox_client_token.stdout }}"
+      cloudkit_fulfillment_service_token: "{{ controller_client_token.stdout }}"

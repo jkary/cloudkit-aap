@@ -1,0 +1,64 @@
+argument_specs:
+  main:
+    options:
+      cluster_order:
+        type: dict
+        required: true
+      cluster_working_namespace:
+        type: str
+        required: true
+      node_requests:
+        type: list
+        elements: dict
+        options:
+          numberOfNodes:
+            type: int
+            required: true
+          resourceClass:
+            type: str
+            required: true
+            choices:
+            - vm-small
+            - vm-medium
+      cluster_template_state:
+        type: str
+        choices:
+        - absent
+        - present
+      template_parameters:
+        type: dict
+        options:
+          pull_secret:
+            description: >
+              The pull secret contains credentials for authenticating to image repositories.
+            type: str
+            required: true
+          ssh_public_key:
+            description: >
+              A public ssh key that will be installed into the `authorized_keys` file
+              of the `core` user on cluster worker nodes.
+            type: str
+            required: true
+          vm_cpu_cores:
+            description: >
+              Number of CPU cores per VM worker node (default: 2 for development).
+            type: int
+            default: 2
+            choices: [1, 2, 4, 8]
+          vm_memory_gb:
+            description: >
+              Amount of memory in GB per VM worker node (default: 4GB for development).
+            type: int
+            default: 4
+            choices: [2, 4, 8, 16]
+          vm_disk_size_gb:
+            description: >
+              Root disk size in GB per VM worker node (default: 50GB for development).
+            type: int
+            default: 50
+            choices: [20, 50, 100, 200]
+          development_mode:
+            description: >
+              Enable development optimizations (reduced monitoring, faster provisioning).
+            type: bool
+            default: true

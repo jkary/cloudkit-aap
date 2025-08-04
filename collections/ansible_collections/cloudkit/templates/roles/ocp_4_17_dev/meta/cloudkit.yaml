@@ -1,0 +1,19 @@
+# Define the display name and description of the template
+title: Development OpenShift 4.17 Cluster (VM-based)
+description: >
+  This template creates a lightweight OpenShift 4.17 cluster optimized for 
+  development and testing using KubeVirt virtual machines. Features reduced 
+  resource requirements, configurable worker nodes, and development-friendly 
+  defaults for cost-effective development environments.
+
+# This sets the nodeRequest field in the ClusterOrder manifest. There must be at
+# least one entry in this list. Development cluster uses VM-based resources.
+default_node_request:
+- resourceClass: vm-small
+  numberOfNodes: 1
+
+# This declares that for a cluster built from this template, only the resource
+# classes listed here may be used when requesting additional nodes.
+allowed_resource_classes:
+- vm-small
+- vm-medium

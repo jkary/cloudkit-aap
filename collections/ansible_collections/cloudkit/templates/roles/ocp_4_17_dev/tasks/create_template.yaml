@@ -1,0 +1,159 @@
+---
+- name: Create HostedCluster for VM-based development cluster
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: hypershift.openshift.io/v1beta1
+      kind: HostedCluster
+      metadata:
+        name: "{{ cluster_order.metadata.name }}"
+        namespace: "{{ cluster_working_namespace }}"
+        labels:
+          cloudkit.io/cluster-order-uuid: "{{ cluster_order.metadata.labels['cloudkit.io/cluster-order-uuid'] }}"
+      spec:
+        # Use KubeVirt as the platform for VM-based clusters
+        platform:
+          type: KubeVirt
+          kubevirt:
+            # Development-optimized settings
+            baseDomainPassthrough: true
+        # OpenShift release configuration
+        release:
+          image: "quay.io/openshift-release-dev/ocp-release:4.17.9-x86_64"
+        # Cluster networking configuration
+        networking:
+          clusterNetwork:
+          - cidr: 10.132.0.0/14
+          serviceNetwork:
+          - cidr: 172.31.0.0/16
+          machineNetwork:
+          - cidr: 192.168.122.0/24
+        # Services configuration for development
+        services:
+          - service: APIServer
+            servicePublishingStrategy:
+              type: LoadBalancer
+          - service: OAuthServer
+            servicePublishingStrategy:
+              type: LoadBalancer
+          - service: OIDC
+            servicePublishingStrategy:
+              type: LoadBalancer
+          - service: Konnectivity
+            servicePublishingStrategy:
+              type: LoadBalancer
+          - service: Ignition
+            servicePublishingStrategy:
+              type: LoadBalancer
+        # Pull secret for image registry access
+        pullSecret:
+          name: "{{ cluster_order.metadata.name }}-pull-secret"
+        # SSH key for node access
+        sshKey:
+          name: "{{ cluster_order.metadata.name }}-ssh-key"
+        # Development mode optimizations
+        configuration:
+          items:
+          - name: cluster-monitoring-config
+            type: ConfigMap
+            data: |
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: cluster-monitoring-config
+                namespace: openshift-monitoring
+              data:
+                config.yaml: |
+                  prometheusK8s:
+                    retention: 6h
+                  enableUserWorkload: false
+          - name: cluster-network-config
+            type: ConfigMap
+            data: |
+              apiVersion: v1
+              kind: ConfigMap
+              metadata:
+                name: cluster-network-03-config
+                namespace: openshift-network-operator
+              data:
+                cluster-network-03-config: |
+                  defaultNetwork:
+                    type: OVNKubernetes
+                    ovnKubernetesConfig:
+                      mtu: 1400
+
+- name: Create pull secret for cluster
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "{{ cluster_order.metadata.name }}-pull-secret"
+        namespace: "{{ cluster_working_namespace }}"
+      type: kubernetes.io/dockerconfigjson
+      data:
+        .dockerconfigjson: "{{ template_parameters.pull_secret | b64encode }}"
+
+- name: Create SSH key secret for cluster
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "{{ cluster_order.metadata.name }}-ssh-key"
+        namespace: "{{ cluster_working_namespace }}"
+      type: Opaque
+      data:
+        id_rsa.pub: "{{ template_parameters.ssh_public_key | b64encode }}"
+
+- name: Create NodePools for VM-based worker nodes
+  kubernetes.core.k8s:
+    definition:
+      apiVersion: hypershift.openshift.io/v1beta1
+      kind: NodePool
+      metadata:
+        name: "{{ cluster_order.metadata.name }}-{{ item.resourceClass }}"
+        namespace: "{{ cluster_working_namespace }}"
+        labels:
+          cloudkit.io/cluster-order-uuid: "{{ cluster_order.metadata.labels['cloudkit.io/cluster-order-uuid'] }}"
+      spec:
+        clusterName: "{{ cluster_order.metadata.name }}"
+        replicas: "{{ item.numberOfNodes }}"
+        # KubeVirt platform configuration for VMs
+        platform:
+          type: KubeVirt
+          kubevirt:
+            # VM resource specifications based on resource class
+            compute:
+              cores: "{{ template_parameters.vm_cpu_cores | default(2) }}"
+              memory: "{{ template_parameters.vm_memory_gb | default(4) }}Gi"
+            # VM storage configuration
+            storage:
+              storageClass: hostpath-csi
+              size: "{{ template_parameters.vm_disk_size_gb | default(50) }}Gi"
+            # VM image configuration
+            image:
+              name: "rhcos"
+              namespace: "openshift-machine-config-operator"
+        # Node configuration
+        release:
+          image: "quay.io/openshift-release-dev/ocp-release:4.17.9-x86_64"
+        # Management configuration for development
+        management:
+          upgradeType: Replace
+          replace:
+            strategy: RollingUpdate
+            rollingUpdate:
+              maxUnavailable: 1
+              maxSurge: 1
+  loop: "{{ node_requests }}"
+  loop_control:
+    label: "{{ item.resourceClass }}-{{ item.numberOfNodes }}"
+
+- name: Display cluster creation status
+  ansible.builtin.debug:
+    msg: 
+    - "Development cluster '{{ cluster_order.metadata.name }}' creation initiated"
+    - "Platform: KubeVirt (VM-based)"
+    - "VM Specs: {{ template_parameters.vm_cpu_cores | default(2) }}vCPU, {{ template_parameters.vm_memory_gb | default(4) }}GB RAM, {{ template_parameters.vm_disk_size_gb | default(50) }}GB disk"
+    - "Worker nodes: {{ node_requests | length }} NodePool(s)"
+    - "Development mode: {{ template_parameters.development_mode | default(true) }}"
