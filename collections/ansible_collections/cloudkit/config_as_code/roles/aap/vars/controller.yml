@@ -74,6 +74,30 @@ controller_templates:  # noqa: var-naming[no-role-prefix]
     allow_simultaneous: true
     ask_variables_on_launch: true
     verbosity: 0
+  - name: "{{ aap_prefix }}-create-vm"
+    project: "{{ aap_prefix }}"
+    organization: "{{ aap_organization_name }}"
+    job_type: run
+    playbook: "playbook_cloudkit_create_vm.yml"
+    inventory: "{{ aap_prefix }}-cluster-fulfillment"
+    execution_environment: "{{ aap_prefix }}-ee"
+    instance_groups:
+      - "{{ aap_prefix }}-config-as-code-ig"
+    allow_simultaneous: true
+    ask_variables_on_launch: true
+    verbosity: 0
+  - name: "{{ aap_prefix }}-delete-vm"
+    project: "{{ aap_prefix }}"
+    organization: "{{ aap_organization_name }}"
+    job_type: run
+    playbook: "playbook_cloudkit_delete_vm.yml"
+    inventory: "{{ aap_prefix }}-cluster-fulfillment"
+    execution_environment: "{{ aap_prefix }}-ee"
+    instance_groups:
+      - "{{ aap_prefix }}-config-as-code-ig"
+    allow_simultaneous: true
+    ask_variables_on_launch: true
+    verbosity: 0
 
 controller_job_template_surveys:  # noqa: var-naming[no-role-prefix]
   - name: "{{ aap_prefix }}-create-hosted-cluster-post-install"
