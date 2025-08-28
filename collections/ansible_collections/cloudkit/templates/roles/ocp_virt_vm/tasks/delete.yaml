@@ -1,8 +1,8 @@
 ---
 - name: Set VM facts
   ansible.builtin.set_fact:
-    vm_name: "{{ template_parameters.vm_name | default(cluster_order.metadata.name) }}"
-    vm_namespace: "{{ template_parameters.vm_namespace | default(cluster_working_namespace) }}"
+    vm_name: "{{ template_parameters.vm_name | default(vm_order.metadata.name) }}"
+    vm_namespace: "{{ template_parameters.vm_namespace | default(vm_target_namespace) }}"
     additional_disks: "{{ template_parameters.additional_disks | default([]) }}"
     vm_expose_service: "{{ template_parameters.vm_expose_service | default(false) }}"
 
