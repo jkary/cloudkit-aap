@@ -1,8 +1,8 @@
 ---
 - name: Set VM facts
   ansible.builtin.set_fact:
-    vm_name: "{{ template_parameters.vm_name | default(cluster_order.metadata.name) }}"
-    vm_namespace: "{{ template_parameters.vm_namespace | default(cluster_working_namespace) }}"
+    vm_name: "{{ template_parameters.vm_name | default(vm_order.metadata.name) }}"
+    vm_namespace: "{{ template_parameters.vm_namespace | default(vm_target_namespace) }}"
     vm_cpu_cores: "{{ template_parameters.vm_cpu_cores | default(2) }}"
     vm_memory: "{{ template_parameters.vm_memory | default('2Gi') }}"
     vm_disk_size: "{{ template_parameters.vm_disk_size | default('20Gi') }}"
@@ -61,7 +61,7 @@
       spec:
         source:
           registry:
-            url: "{{ vm_image_source }}"
+            url: "docker://{{ vm_image_source }}"
         pvc:
           accessModes:
             - ReadWriteOnce
@@ -94,6 +94,16 @@
   loop_control:
     loop_var: disk
 
+- name: Initialize additional disk volumes list
+  ansible.builtin.set_fact:
+    additional_disk_volumes: []
+
+- name: Build additional disk volumes
+  ansible.builtin.set_fact:
+    additional_disk_volumes: "{{ additional_disk_volumes + [{'name': vm_name + '-' + item.name, 'dataVolume': {'name': vm_name + '-' + item.name}}] }}"
+  loop: "{{ additional_disks }}"
+  when: additional_disks | length > 0
+
 - name: Create VirtualMachine
   kubernetes.core.k8s:
     definition:
@@ -105,7 +115,7 @@
         labels:
           app: "{{ vm_name }}"
           cloudkit.template: ocp_virt_vm
-          cloudkit.cluster-order: "{{ cluster_order.metadata.name }}"
+          cloudkit.vm-order: "{{ vm_order.metadata.name }}"
       spec:
         running: true
         template:
@@ -128,7 +138,6 @@
                     disk:
                       bus: virtio
                     serial: cloud-init
-                  "{{ additional_disks | map('regex_replace', '^(.*)$', {'name': vm_name + '-\\1', 'disk': {'bus': 'virtio'}}) | list }}"
                 interfaces:
                   - name: default
                     masquerade: {}
@@ -146,18 +155,17 @@
             networks:
               - name: default
                 pod: {}
-            volumes:
-              - name: root-disk
-                dataVolume:
-                  name: "{{ vm_name }}-root-disk"
-              - name: cloud-init-disk
-                cloudInitNoCloud:
-                  secretRef:
-                    name: "{{ vm_name }}-cloud-init"
-              "{{ additional_disks | map('regex_replace', '^(.*)$', {'name': vm_name + '-\\1', 'dataVolume': {'name': vm_name + '-\\1'}}) | list }}"
+            volumes: "{{ base_volumes + additional_disk_volumes }}"
     state: present
   vars:
-    disk_volumes: "{{ additional_disks | map('dict2items') | map('map', 'value') | list }}"
+    base_volumes:
+      - name: root-disk
+        dataVolume:
+          name: "{{ vm_name }}-root-disk"
+      - name: cloud-init-disk
+        cloudInitNoCloud:
+          secretRef:
+            name: "{{ vm_name }}-cloud-init"
 
 - name: Wait for VM to be ready
   kubernetes.core.k8s_info:
