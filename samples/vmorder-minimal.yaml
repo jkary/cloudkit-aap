@@ -17,7 +17,8 @@ spec:
       "vm_name": "minimal-test-vm",
       "vm_cpu_cores": 2,
       "vm_memory": "2Gi",
-      "vm_disk_size": "20Gi",
+      "vm_disk_size": "25Gi",
       "vm_image_source": "quay.io/containerdisks/fedora:latest",
-      "vm_os_type": "linux"
+      "vm_os_type": "linux",
+      "storage_class": "nfs-vm-dynamic"
     }

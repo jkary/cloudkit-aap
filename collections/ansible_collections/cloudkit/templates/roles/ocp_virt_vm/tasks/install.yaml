@@ -5,10 +5,10 @@
     vm_namespace: "{{ template_parameters.vm_namespace | default(vm_target_namespace) }}"
     vm_cpu_cores: "{{ template_parameters.vm_cpu_cores | default(2) }}"
     vm_memory: "{{ template_parameters.vm_memory | default('2Gi') }}"
-    vm_disk_size: "{{ template_parameters.vm_disk_size | default('20Gi') }}"
+    vm_disk_size: "{{ template_parameters.vm_disk_size | default('25Gi') }}"
     vm_image_source: "{{ template_parameters.vm_image_source | default('quay.io/containerdisks/fedora:latest') }}"
     vm_os_type: "{{ template_parameters.vm_os_type | default('linux') }}"
-    storage_class: "{{ template_parameters.storage_class | default('') }}"
+    storage_class: "{{ template_parameters.storage_class | default('nfs-vm-dynamic') }}"
     vm_expose_service: "{{ template_parameters.vm_expose_service | default(false) }}"
     vm_service_type: "{{ template_parameters.vm_service_type | default('ClusterIP') }}"
     vm_service_ports: "{{ template_parameters.vm_service_ports | default([]) }}"
@@ -64,7 +64,7 @@
             url: "docker://{{ vm_image_source }}"
         pvc:
           accessModes:
-            - ReadWriteOnce
+            - ReadWriteMany  # Required for VM live migration
           resources:
             requests:
               storage: "{{ vm_disk_size }}"
@@ -84,7 +84,7 @@
           blank: {}
         pvc:
           accessModes:
-            - ReadWriteOnce
+            - ReadWriteMany  # Required for VM live migration
           resources:
             requests:
               storage: "{{ disk.size }}"
