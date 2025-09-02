@@ -4,7 +4,7 @@
 # VM Resource Defaults
 default_vm_cpu_cores: 2
 default_vm_memory: "2Gi"
-default_vm_disk_size: "20Gi"
+default_vm_disk_size: "25Gi"
 
 # Default OS and Image Configuration
 default_vm_os_type: "linux"
@@ -48,7 +48,7 @@ default_service_ports:
       protocol: "TCP"
 
 # Storage Defaults
-default_storage_class: ""  # Use cluster default
+default_storage_class: "nfs-vm-dynamic"  # Dynamic NFS storage for live migration
 default_additional_disks: []
 
 # Cloud-init template for basic Linux VM setup
