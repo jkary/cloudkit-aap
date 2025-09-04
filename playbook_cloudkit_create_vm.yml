@@ -84,7 +84,7 @@
         - name: Call the selected VM template
           ansible.builtin.include_role:
             name: "{{ template_id }}"
-            tasks_from: "install"
+            tasks_from: "create"
 
       rescue:
 
