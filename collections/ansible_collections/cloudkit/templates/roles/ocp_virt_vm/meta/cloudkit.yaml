@@ -1,5 +1,5 @@
 # Define the display name and description of the template
-title: OpenShift Virtualization VM
+title: Virtualed VM Template
 description: >
   This template provisions a virtual machine using OpenShift Virtualization 
   (KubeVirt) on an existing OpenShift cluster. It creates the VM with 
