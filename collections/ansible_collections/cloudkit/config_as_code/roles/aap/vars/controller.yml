@@ -421,6 +421,9 @@ controller_instance_groups:  # noqa: var-naming[no-role-prefix]
     pod_spec_override: |
       apiVersion: v1
       kind: Pod
+      metadata:
+        labels:
+          ansible_job: ''
       spec:
         serviceAccountName: cloudkit-sa
         affinity:
@@ -445,6 +448,9 @@ controller_instance_groups:  # noqa: var-naming[no-role-prefix]
               - name: kube-api-access
                 mountPath: /var/run/secrets/kubernetes.io/serviceaccount
                 readOnly: true
+            envFrom:
+              - secretRef:
+                  name: cluster-fulfillment-ig
             env:
               - name: CLOUDKIT_VM_OPERATIONS_NAMESPACE_DEFAULT
                 valueFrom:
