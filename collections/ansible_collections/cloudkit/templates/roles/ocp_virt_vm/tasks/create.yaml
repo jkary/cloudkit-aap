@@ -1,19 +1,25 @@
 ---
+- name: Generate random VM name if not specified
+  ansible.builtin.set_fact:
+    random_vm_name: "{{ vm_name_adjectives | random }}-{{ vm_name_nouns | random }}"
+  when: template_parameters.vm_name is not defined or template_parameters.vm_name == ""
+
 - name: Set VM facts
   ansible.builtin.set_fact:
-    vm_name: "{{ template_parameters.vm_name | default(vm_order.metadata.name) }}"
-    vm_namespace: "{{ template_parameters.vm_namespace | default(vm_target_namespace) }}"
+    vm_name: "{{ template_parameters.vm_name | default(random_vm_name | default(vm_order.metadata.name)) }}"
+    vm_namespace: "{{ template_parameters.vm_namespace | default(default_vm_namespace) }}"
     vm_cpu_cores: "{{ template_parameters.vm_cpu_cores | default(2) }}"
     vm_memory: "{{ template_parameters.vm_memory | default('2Gi') }}"
     vm_disk_size: "{{ template_parameters.vm_disk_size | default('25Gi') }}"
-    vm_image_source: "{{ template_parameters.vm_image_source | default('quay.io/containerdisks/fedora:latest') }}"
+    vm_image_source: "{{ template_parameters.vm_image_source | default(default_vm_image_source) }}"
     vm_os_type: "{{ template_parameters.vm_os_type | default('linux') }}"
-    storage_class: "{{ template_parameters.storage_class | default('nfs-vm-dynamic') }}"
+    storage_class: "{{ template_parameters.storage_class | default(default_storage_class) }}"
     vm_expose_service: "{{ template_parameters.vm_expose_service | default(false) }}"
     vm_service_type: "{{ template_parameters.vm_service_type | default('ClusterIP') }}"
     vm_service_ports: "{{ template_parameters.vm_service_ports | default([]) }}"
-    additional_disks: "{{ template_parameters.additional_disks | default([]) }}"
+    additional_disks: "{{ template_parameters.additional_disks | default(default_additional_disks) }}"
     vm_network_type: "{{ template_parameters.vm_network_type | default('pod') }}"
+    ssh_public_key: "{{ template_parameters.ssh_public_key | default(default_ssh_public_key) }}"
 
 - name: Ensure target namespace exists
   kubernetes.core.k8s:
@@ -46,9 +52,9 @@
         namespace: "{{ vm_namespace }}"
       type: Opaque
       data:
-        key: "{{ template_parameters.ssh_public_key | b64encode }}"
+        key: "{{ ssh_public_key | b64encode }}"
     state: present
-  when: template_parameters.ssh_public_key is defined
+  when: ssh_public_key is defined and ssh_public_key != ""
 
 - name: Create DataVolume for VM root disk
   kubernetes.core.k8s:
