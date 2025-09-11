@@ -63,7 +63,7 @@
 - name: Initialize empty VM template IDs list if not set
   ansible.builtin.set_fact:
     vm_template_ids: []
-  when: vm_template_ids is not defined
+  when: vm_template_ids is not defined or vm_template_ids is none
 
 - name: Update existing VM template
   loop: "{{ cloudkit_vm_templates }}"
