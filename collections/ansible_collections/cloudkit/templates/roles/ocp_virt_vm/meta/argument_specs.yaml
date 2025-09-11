@@ -119,7 +119,6 @@ argument_specs:
             type: list
             elements: dict
             required: false
-            default: []
             options:
               name:
                 description: Name of the additional disk
