@@ -56,7 +56,7 @@
   ansible.builtin.set_fact:
     vm_template_ids: >-
       {{
-      vm_template_check | json_query("json.items[].id") | default([])
+      (vm_template_check | json_query("json.items[].id")) | default([]) | list
       }}
   when: vm_template_check is defined and not vm_template_check.skipped | default(false)
 
