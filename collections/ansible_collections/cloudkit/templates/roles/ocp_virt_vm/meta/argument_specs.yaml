@@ -16,15 +16,16 @@ argument_specs:
           vm_name:
             description: >
               Name of the virtual machine to create. If not specified,
-              will use the cluster order name.
+              will generate a random name using adjective-noun pairs.
             type: str
             required: false
           vm_namespace:
             description: >
               Kubernetes namespace where the VM will be created.
-              Defaults to cluster_working_namespace.
+              Defaults to 'vmaas' namespace.
             type: str
             required: false
+            default: "vmaas"
           vm_cpu_cores:
             description: >
               Number of CPU cores to allocate to the VM.
@@ -48,7 +49,7 @@ argument_specs:
               Container disk image or data source for the VM root disk.
               Can be a container image URL or PVC reference.
             type: str
-            required: true
+            required: false
             default: "quay.io/containerdisks/fedora:latest"
           vm_os_type:
             description: >
@@ -62,8 +63,10 @@ argument_specs:
           storage_class:
             description: >
               StorageClass to use for VM persistent volumes.
+              Defaults to NFS storage operator storage class.
             type: str
             required: false
+            default: "nfs-client"
           cloud_init_config:
             description: >
               Cloud-init configuration for VM initialization.
@@ -116,6 +119,7 @@ argument_specs:
             type: list
             elements: dict
             required: false
+            default: []
             options:
               name:
                 description: Name of the additional disk
@@ -143,3 +147,4 @@ argument_specs:
               SSH public key to inject into the VM for remote access.
             type: str
             required: false
+            default: ""
