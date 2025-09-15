@@ -4,7 +4,7 @@
   gather_facts: false
 
   vars:
-    vm_order: "{{ ansible_eda.event.payload.payload }}"
+    vm_order: "{{ ansible_eda.event.payload }}"
 
   pre_tasks:
     - name: Set VM order name
