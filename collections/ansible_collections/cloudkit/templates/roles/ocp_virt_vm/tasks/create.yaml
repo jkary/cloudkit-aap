@@ -62,8 +62,6 @@
           registry:
             url: "docker://{{ vm_image_source }}"
         pvc:
-          accessModes:
-            - ReadWriteMany  # Required for VM live migration
           resources:
             requests:
               storage: "{{ vm_disk_size }}"
@@ -81,12 +79,9 @@
         source:
           blank: {}
         pvc:
-          accessModes:
-            - ReadWriteMany  # Required for VM live migration
           resources:
             requests:
               storage: "{{ disk.size }}"
-          storageClassName: "{{ disk.storage_class | default(storage_class) if (disk.storage_class | default(storage_class)) else omit }}"
     state: present
   loop: "{{ additional_disks }}"
   loop_control:
