@@ -43,9 +43,15 @@
       ansible.builtin.include_role:
         name: cloudkit.service.extract_vm_template_info
 
+    - name: Determine working namespace
+      ansible.builtin.include_role:
+        name: cloudkit.service.vm_working_namespace
+      vars:
+        vm_working_namespace_vm_order_name: "{{ vm_order_name }}"
+
     - name: Set VM target namespace
       ansible.builtin.set_fact:
-        vm_target_namespace: "cloudkit-vms"
+        vm_target_namespace: "{{ vm_working_namespace }}"
 
   tasks:
     - name: Create virtual machine
