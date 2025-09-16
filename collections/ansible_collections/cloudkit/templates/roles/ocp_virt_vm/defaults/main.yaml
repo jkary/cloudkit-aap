@@ -93,51 +93,6 @@ vm_ready_timeout: 300
 vm_deletion_timeout: 300
 datavolume_timeout: 600
 
-# Random name generation (LXC-style adjective-noun pairs)
-vm_name_adjectives:
-  - "happy"
-  - "brave"
-  - "clever"
-  - "swift"
-  - "bright"
-  - "quiet"
-  - "calm"
-  - "bold"
-  - "gentle"
-  - "kind"
-  - "wise"
-  - "strong"
-  - "quick"
-  - "smooth"
-  - "fresh"
-  - "warm"
-  - "cool"
-  - "sharp"
-  - "soft"
-  - "light"
-
-vm_name_nouns:
-  - "badger"
-  - "beaver"
-  - "falcon"
-  - "dolphin"
-  - "eagle"
-  - "tiger"
-  - "lion"
-  - "bear"
-  - "wolf"
-  - "fox"
-  - "owl"
-  - "hawk"
-  - "deer"
-  - "rabbit"
-  - "otter"
-  - "panda"
-  - "lynx"
-  - "whale"
-  - "seal"
-  - "koala"
-
 # Labels applied to all VM resources
 default_vm_labels: "{{ {vm_order_label: vm_order_name} }}"
 
