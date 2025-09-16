@@ -17,11 +17,11 @@ default_vm_image_source: "quay.io/containerdisks/fedora:latest"
 vm_image_registry:
   fedora_latest: "quay.io/containerdisks/fedora:latest"
 default_vm_image_source: "quay.io/containerdisks/fedora:latest"
-  fedora_39: "quay.io/containerdisks/fedora:39" 
-  ubuntu_22_04: "quay.io/containerdisks/ubuntu:22.04"
-  ubuntu_20_04: "quay.io/containerdisks/ubuntu:20.04"
-  centos_stream_9: "quay.io/containerdisks/centos-stream:9"
-  rhel_9: "registry.redhat.io/ubi9/ubi:latest"
+# fedora_39: "quay.io/containerdisks/fedora:39" 
+# ubuntu_22_04: "quay.io/containerdisks/ubuntu:22.04"
+# ubuntu_20_04: "quay.io/containerdisks/ubuntu:20.04"
+# centos_stream_9: "quay.io/containerdisks/centos-stream:9"
+# rhel_9: "registry.redhat.io/ubi9/ubi:latest"
 
 # Network Configuration Defaults
 default_vm_network_type: "pod"
