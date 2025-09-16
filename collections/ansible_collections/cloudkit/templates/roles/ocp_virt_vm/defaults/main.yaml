@@ -139,9 +139,8 @@ vm_name_nouns:
   - "koala"
 
 # Labels applied to all VM resources
-default_vm_labels:
-  cloudkit.template: "ocp_virt_vm"
-  cloudkit.component: "virtualization"
+default_vm_labels: "{{ {vm_order_label: vm_order_name} }}"
+
 
 # Common VM feature configurations by OS type
 vm_features_by_os:

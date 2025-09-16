@@ -7,7 +7,7 @@
 - name: Set VM facts
   ansible.builtin.set_fact:
     vm_name: "{{ template_parameters.vm_name | default(random_vm_name | default(vm_order.metadata.name)) }}"
-    vm_namespace: "{{ template_parameters.vm_namespace | default(default_vm_namespace) }}"
+    vm_namespace: "{{ vm_target_namespace }}"
     vm_cpu_cores: "{{ template_parameters.vm_cpu_cores | default(2) }}"
     vm_memory: "{{ template_parameters.vm_memory | default('2Gi') }}"
     vm_disk_size: "{{ template_parameters.vm_disk_size | default('25Gi') }}"
@@ -20,13 +20,6 @@
     additional_disks: "{{ template_parameters.additional_disks | default(default_additional_disks) }}"
     vm_network_type: "{{ template_parameters.vm_network_type | default('pod') }}"
     ssh_public_key: "{{ template_parameters.ssh_public_key | default(default_ssh_public_key) }}"
-
-- name: Ensure target namespace exists
-  kubernetes.core.k8s:
-    name: "{{ vm_namespace }}"
-    api_version: v1
-    kind: Namespace
-    state: present
 
 - name: Create cloud-init secret (if cloud_init_config provided)
   kubernetes.core.k8s:
@@ -74,7 +67,6 @@
           resources:
             requests:
               storage: "{{ vm_disk_size }}"
-          storageClassName: "{{ storage_class if storage_class else omit }}"
     state: present
 
 - name: Create DataVolumes for additional disks
@@ -118,17 +110,12 @@
       metadata:
         name: "{{ vm_name }}"
         namespace: "{{ vm_namespace }}"
-        labels:
-          app: "{{ vm_name }}"
-          cloudkit.template: ocp_virt_vm
-          cloudkit.vm-order: "{{ vm_order.metadata.name }}"
+        labels: "{{ default_vm_labels }}"
       spec:
         running: true
         template:
           metadata:
-            labels:
-              app: "{{ vm_name }}"
-              cloudkit.template: ocp_virt_vm
+            labels: "{{ default_vm_labels }}"
           spec:
             domain:
               cpu:
@@ -193,13 +180,10 @@
       metadata:
         name: "{{ vm_name }}-service"
         namespace: "{{ vm_namespace }}"
-        labels:
-          app: "{{ vm_name }}"
-          cloudkit.template: ocp_virt_vm
+        labels: "{{ default_vm_labels }}"
       spec:
         type: "{{ vm_service_type }}"
-        selector:
-          app: "{{ vm_name }}"
+        selector: "{{ default_vm_labels }}"
         ports: "{{ vm_service_ports }}"
     state: present
   when: vm_expose_service and vm_service_ports | length > 0
