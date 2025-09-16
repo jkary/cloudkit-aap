@@ -1,12 +1,7 @@
 ---
-- name: Generate random VM name if not specified
-  ansible.builtin.set_fact:
-    random_vm_name: "{{ vm_name_adjectives | random }}-{{ vm_name_nouns | random }}"
-  when: template_parameters.vm_name is not defined or template_parameters.vm_name == ""
-
 - name: Set VM facts
   ansible.builtin.set_fact:
-    vm_name: "{{ template_parameters.vm_name | default(random_vm_name | default(vm_order.metadata.name)) }}"
+    vm_name: "{{ vm_order.metadata.name }}"
     vm_namespace: "{{ vm_target_namespace }}"
     vm_cpu_cores: "{{ template_parameters.vm_cpu_cores | default(2) }}"
     vm_memory: "{{ template_parameters.vm_memory | default('2Gi') }}"
