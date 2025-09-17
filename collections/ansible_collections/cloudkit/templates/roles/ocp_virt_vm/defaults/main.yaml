@@ -17,11 +17,11 @@ default_vm_image_source: "quay.io/containerdisks/fedora:latest"
 vm_image_registry:
   fedora_latest: "quay.io/containerdisks/fedora:latest"
 default_vm_image_source: "quay.io/containerdisks/fedora:latest"
-  fedora_39: "quay.io/containerdisks/fedora:39" 
-  ubuntu_22_04: "quay.io/containerdisks/ubuntu:22.04"
-  ubuntu_20_04: "quay.io/containerdisks/ubuntu:20.04"
-  centos_stream_9: "quay.io/containerdisks/centos-stream:9"
-  rhel_9: "registry.redhat.io/ubi9/ubi:latest"
+# fedora_39: "quay.io/containerdisks/fedora:39" 
+# ubuntu_22_04: "quay.io/containerdisks/ubuntu:22.04"
+# ubuntu_20_04: "quay.io/containerdisks/ubuntu:20.04"
+# centos_stream_9: "quay.io/containerdisks/centos-stream:9"
+# rhel_9: "registry.redhat.io/ubi9/ubi:latest"
 
 # Network Configuration Defaults
 default_vm_network_type: "pod"
@@ -93,55 +93,8 @@ vm_ready_timeout: 300
 vm_deletion_timeout: 300
 datavolume_timeout: 600
 
-# Random name generation (LXC-style adjective-noun pairs)
-vm_name_adjectives:
-  - "happy"
-  - "brave"
-  - "clever"
-  - "swift"
-  - "bright"
-  - "quiet"
-  - "calm"
-  - "bold"
-  - "gentle"
-  - "kind"
-  - "wise"
-  - "strong"
-  - "quick"
-  - "smooth"
-  - "fresh"
-  - "warm"
-  - "cool"
-  - "sharp"
-  - "soft"
-  - "light"
-
-vm_name_nouns:
-  - "badger"
-  - "beaver"
-  - "falcon"
-  - "dolphin"
-  - "eagle"
-  - "tiger"
-  - "lion"
-  - "bear"
-  - "wolf"
-  - "fox"
-  - "owl"
-  - "hawk"
-  - "deer"
-  - "rabbit"
-  - "otter"
-  - "panda"
-  - "lynx"
-  - "whale"
-  - "seal"
-  - "koala"
-
 # Labels applied to all VM resources
-default_vm_labels:
-  cloudkit.template: "ocp_virt_vm"
-  cloudkit.component: "virtualization"
+default_vm_labels: "{{ {vm_order_label: vm_order_name} }}"
 
 # Common VM feature configurations by OS type
 vm_features_by_os:

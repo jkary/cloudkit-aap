@@ -9,9 +9,6 @@ collections:
     version: 10.5.0
   - name: ansible.utils
     version: 5.1.2
-  - source: "https://github.com/IsaiahStapleton/ai-cluster-ansible.git"
-    type: git
-    version: 0.1.0
   - name: ansible.platform
     version: "2.5.20250326"
   - name: ansible.hub
@@ -19,6 +16,6 @@ collections:
   - name: ansible.controller
     version: "4.6.11"
   - name: ansible.eda
-    version: "2.6.1"
+    version: "2.8.2"
   - name: infra.aap_configuration
-    version: "3.2.0"
+    version: "3.4.1"
