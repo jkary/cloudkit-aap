@@ -180,6 +180,7 @@ class Metadata(Base):
     )
     default_node_request: list[NodeRequest] = []
     allowed_resource_classes: list[str] | None = None
+    vm_storage_class: str | None = None
 
 
 class Template(Base):
