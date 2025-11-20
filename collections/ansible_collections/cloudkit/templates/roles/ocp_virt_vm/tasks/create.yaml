@@ -187,17 +187,17 @@
       status: "True"
     wait_timeout: 600
 
-- name: Assign floating IP
-  ansible.builtin.include_role:
-    name: massopencloud.esi.floating_ip
-  vars:
-    floating_ip_state: present
-    floating_ip_name: "{{ vm_order_name }}-floating-ip"
-    floating_ip_properties:
-      vm: "{{ vm_order_name }}"
-      instance: "{{ vm_order.metadata.namespace }}"
-      purpose: "o-sac"
-
+# - name: Assign floating IP
+#   ansible.builtin.include_role:
+#     name: massopencloud.esi.floating_ip
+#   vars:
+#     floating_ip_state: present
+#     floating_ip_name: "{{ vm_order_name }}-floating-ip"
+#     floating_ip_properties:
+#       vm: "{{ vm_order_name }}"
+#       instance: "{{ vm_order.metadata.namespace }}"
+#       purpose: "o-sac"
+#
 - name: Build Kubernetes service ports from exposed_ports
   ansible.builtin.set_fact:
     vm_service_ports: >
@@ -254,29 +254,29 @@
     port_mappings: "{{ port_mappings | default([]) + [item.port | string + ':' + item.nodePort | string] }}"
   loop: "{{ load_balancer.resources[0].spec.ports }}"
 
-- name: Create floating IP port forwarding to VM node NodePorts
-  ansible.builtin.include_role:
-    name: massopencloud.esi.floating_ip
-    tasks_from: create_port_forwarding
-  vars:
-    internal_ip: "{{ node_info.resources[0].status.addresses | selectattr('type', 'equalto', 'InternalIP') | map(attribute='address') | first }}"
-    floating_ip: "{{ allocate_floating_ip_result }}"
-    internal_network: "{{ default_vm_internal_network }}"
-    ports: "{{ port_mappings }}"
-    description: "{{ vm_name }}-nodeport"
-
-- name: Annotate VirtualMachine with floating IP address
-  kubernetes.core.k8s:
-    api_version: cloudkit.openshift.io/v1alpha1
-    kind: VirtualMachine
-    name: "{{ vm_name }}"
-    namespace: "{{ vm_order.metadata.namespace }}"
-    state: present
-    definition:
-      metadata:
-        annotations:
-          cloudkit.openshift.io/floating-ip-address: "{{ allocate_floating_ip_result }}"
-
+# - name: Create floating IP port forwarding to VM node NodePorts
+#   ansible.builtin.include_role:
+#     name: massopencloud.esi.floating_ip
+#     tasks_from: create_port_forwarding
+#   vars:
+#     internal_ip: "{{ node_info.resources[0].status.addresses | selectattr('type', 'equalto', 'InternalIP') | map(attribute='address') | first }}"
+#     floating_ip: "{{ allocate_floating_ip_result }}"
+#     internal_network: "{{ default_vm_internal_network }}"
+#     ports: "{{ port_mappings }}"
+#     description: "{{ vm_name }}-nodeport"
+#
+# - name: Annotate VirtualMachine with floating IP address
+#   kubernetes.core.k8s:
+#     api_version: cloudkit.openshift.io/v1alpha1
+#     kind: VirtualMachine
+#     name: "{{ vm_name }}"
+#     namespace: "{{ vm_order.metadata.namespace }}"
+#     state: present
+#     definition:
+#       metadata:
+#         annotations:
+#           cloudkit.openshift.io/floating-ip-address: "{{ allocate_floating_ip_result }}"
+#
 - name: Get VM status
   kubernetes.core.k8s_info:
     api_version: kubevirt.io/v1
